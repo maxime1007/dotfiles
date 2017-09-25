@@ -1,94 +1,32 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"	nvim plugins
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let mapleader = "\<space>"
+set noshowmode
+set cmdheight=1
 
+" Load my sweet plugins
 call plug#begin('~/.config/nvim/plugged')
-
-" CTRL-P : Fuzzy file, buffer, mru, tag, etc finder.
-Plug 'ctrlpvim/ctrlp.vim'
-
-" Gruvbox.
-Plug 'morhetz/gruvbox'
-
-" Vim surround
-Plug 'tpope/vim-surround'
-
-" Git wrapper for Vim
-Plug 'tpope/vim-fugitive'
-
-" NERDTree : A tree explorer plugin for vim.
-Plug 'scrooloose/nerdtree'
-
-" NERDCommenter : Comment shits easily
-Plug 'scrooloose/nerdcommenter'
-
-" Vim airline
-Plug 'vim-airline/vim-airline'
-
-" Python auto complete
-Plug 'davidhalter/jedi-vim'
-
-" Vim motion
-Plug 'easymotion/vim-easymotion'
-
-" Vim syntastic: Syntax checking hacks for vim
-Plug 'vim-syntastic/syntastic'
-
-" Emmet for vim
-Plug 'mattn/emmet-vim'
-
-" JSX vim "
-Plug 'mxw/vim-jsx'
-Plug 'pangloss/vim-javascript'
-
-" Base16 colorscheme "
-Plug 'chriskempson/base16-vim'
-
-" Ack for vim "
-Plug 'mileszs/ack.vim'
-
-" YouCompleteMe
-Plug 'Valloric/YouCompleteMe'
-
-" Tern for vim
-Plug 'ternjs/tern_for_vim'
-
-" Supertab!
-Plug 'ervandew/supertab'
-
-
+source ~/.config/nvim/plugins.vim
 call plug#end()
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"	Color and fonts
+"	Color, Syntax and fonts
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" Enable syntax highlighting
-syntax enable
-
-" Use Unix line ending
+" Use Unix line ending and UTF-8 encoding
 set ffs=unix,dos,mac
-
-" Use UTF-8 encoding
 set encoding=utf-8
-set fileencoding=utf-8  " The encoding written to file.
+set fileencoding=utf-8
 
-" colorscheme "
-colorscheme gruvbox
+" Syntax & colorscheme
+syntax enable
 set termguicolors
-set background=dark
+colorscheme base16-onedark
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"	BackUp and shits
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" No backups
 set nobackup
 set nowb
 set noswapfile
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"	Defaults Tabs and indent
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Default tabs and indentation settings
 set expandtab
 set tabstop=4
 set shiftwidth=4
@@ -97,43 +35,55 @@ set autoindent
 set cursorline
 set nowrap
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"   others
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" set line numbers
 set number
-set shell=/bin/bash
 set hidden
-set incsearch
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"   Copy and paste to clipboard
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" search settings
+set incsearch
+set ignorecase
+set smartcase
+
+" Copypasta for real
 set clipboard+=unnamedplus
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Always show the status line
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set laststatus=2
+" Always clear trailling white spaces
+autocmd BufWritePre * %s/\s\+$//e
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Open NERDTree with CTRL n
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-map <C-n> :NERDTreeToggle<CR>
 
-" Clear highlight on CR
-:nnoremap <CR> :nohlsearch<CR><CR>
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"   Bindings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Open NERDTree with CTRL-n
+map <C-n> :NERDTreeToggle<CR><Paste>
 
-" Prevent Ack from opening first results of search
-cnoreabbrev Ack Ack!
-nnoremap <Leader>a :Ack!<Space>
+" Space bindings
+nmap <leader>s :w<cr>
+nmap <leader>z :BufExplorerHorizontalSplit<cr>
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"   Plugins config
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" NERDCommenter
+let g:NERDSpaceDelims = 1
+let g:NERDCompactSexyComs = 1
 
 " Prevent CTRL-P to search in those directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
+let g:ctrlp_use_caching = 0
+if executable('ag')
+    set grepprg=ag\ --nogroup\ --nocolor
 
-" Disable YCM  ( we're using jedi )
-let g:ycm_filetype_specific_completion_to_disable = {
-      \ 'python': 1
+    let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+else
+    let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
+    let g:ctrlp_prompt_mappings = {
+                \ 'AcceptSelection("e")': ['<space>', '<cr>', '<2-LeftMouse>'],
+                \ }
+endif
+
+" Dont use YouCompleteMe for those filetypes
+let g:ycm_filetype_blacklist = {
+      \ 'python': 1,
       \}
-
-" Supertab scroll from top to bottom
-let g:SuperTabDefaultCompletionType = "<c-n>"
